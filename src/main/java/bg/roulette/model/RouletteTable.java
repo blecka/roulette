@@ -25,6 +25,8 @@ public class RouletteTable {
     private TextDisplay hologramEntity;
     private BukkitTask activeTask;
     private int remainingSeconds;
+    private int currentSpinNumber;
+    private int winningNumber;
 
     public RouletteTable(String name, Location location, int size) {
         this.name = name;
@@ -101,5 +103,21 @@ public class RouletteTable {
 
     public void setRemainingSeconds(int remainingSeconds) {
         this.remainingSeconds = remainingSeconds;
+    }
+
+    public int getCurrentSpinNumber() {
+        return currentSpinNumber;
+    }
+
+    public void setCurrentSpinNumber(int currentSpinNumber) {
+        this.currentSpinNumber = currentSpinNumber;
+    }
+
+    public int getWinningNumber() {
+        return winningNumber;
+    }
+
+    public void setWinningNumber(int winningNumber) {
+        this.winningNumber = winningNumber;
     }
 }

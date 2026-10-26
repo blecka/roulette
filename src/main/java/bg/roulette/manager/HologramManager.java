@@ -79,7 +79,7 @@ public class HologramManager {
                 lines.add(config.getRawMessageString("hologram.bets-header"));
 
                 if (table.getActiveBets().isEmpty()) {
-                    lines.add("&7- &f(Няма направени залози)");
+                    lines.add(config.getRawMessageString("hologram.no-bets"));
                 } else {
                     String redText = config.getRawMessageString("bet-target-red");
                     String blackText = config.getRawMessageString("bet-target-black");
@@ -98,9 +98,20 @@ public class HologramManager {
             }
             case SPINNING -> {
                 lines.add(config.getRawMessageString("hologram.spinning-status"));
+                int num = table.getCurrentSpinNumber();
+                String colorStr = plugin.getRouletteManager().getNumberColorString(num);
+                String animLine = config.getRawMessageString("hologram.spinning-number")
+                        .replace("{number}", String.valueOf(num))
+                        .replace("{color}", colorStr);
+                lines.add(animLine);
             }
             case RESULT -> {
-                lines.add(config.getRawMessageString("hologram.result-status"));
+                int winNum = table.getWinningNumber();
+                String colorStr = plugin.getRouletteManager().getNumberColorString(winNum);
+                String resLine = config.getRawMessageString("hologram.result-status")
+                        .replace("{number}", String.valueOf(winNum))
+                        .replace("{color}", colorStr);
+                lines.add(resLine);
             }
         }
 

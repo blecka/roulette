@@ -15,7 +15,7 @@ bet-already-placed: "&cВече имате активен залог за тоз
 bet-round-spinning: "&cВ момента рулетката се върти! Изчакайте следващия рунд."
 bet-invalid-amount: "&cНевалидна сума за залог! Сумата трябва да е число."
 bet-amount-min: "&cМинималният залог е &e{min}$&c!"
-bet-amount-max: "&cМаксималният залог е &e{min}$&c!" # Note: template variable name max
+bet-amount-max: "&cМаксималният залог е &e{max}$&c!"
 bet-insufficient-funds: "&cНямате достатъчно пари! Вашият баланс е &e{balance}$&c."
 bet-prompt: "&aВъведете сумата за вашия залог за &e{target} &aв чата (или напишете &c'cancel' &aза отказ):"
 bet-cancelled: "&cЗалогът беше отменен."
@@ -38,5 +38,7 @@ hologram:
   waiting-status: "&7Оставащо време: &e{time}сек."
   bets-header: "&fЗалози в този рунд:"
   bet-entry: "&7- &e{player}&7: &a{amount}$ &7на &f{target}"
+  no-bets: "&7- &f(Няма направени залози)"
   spinning-status: "&e&l⚡ ВЪРТЕНЕ НА КОЛЕЛОТО... ⚡"
+  spinning-number: "&e{number} ({color})"
   result-status: "&a&lРЕЗУЛТАТ: &e{number} ({color})"

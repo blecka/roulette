@@ -10,6 +10,7 @@ import bg.roulette.util.ColorUtil;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -19,9 +20,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class BetListener implements Listener {
 
@@ -56,7 +57,7 @@ public class BetListener implements Listener {
     }
 
     private final Roulette plugin;
-    private final Map<UUID, PendingBetPrompt> pendingBets = new HashMap<>();
+    private final Map<UUID, PendingBetPrompt> pendingBets = new ConcurrentHashMap<>();
 
     public BetListener(Roulette plugin) {
         this.plugin = plugin;
@@ -76,6 +77,7 @@ public class BetListener implements Listener {
             int slot = event.getSlot();
             RouletteTable table = holder.getTable();
             ConfigManager config = plugin.getConfigManager();
+            FileConfiguration guiCfg = config.getGui();
 
             if (table.getState() == RouletteTable.TableState.SPINNING) {
                 player.sendMessage(config.getMessageString("bet-round-spinning"));
@@ -92,11 +94,15 @@ public class BetListener implements Listener {
             Bet.BetTargetType targetType = null;
             int targetNumber = -1;
 
-            if (slot == 48) {
+            int redSlot = guiCfg.getInt("items.red-button.slot", 48);
+            int greenSlot = guiCfg.getInt("items.green-button.slot", 49);
+            int blackSlot = guiCfg.getInt("items.black-button.slot", 50);
+
+            if (slot == redSlot) {
                 targetType = Bet.BetTargetType.RED;
-            } else if (slot == 49) {
+            } else if (slot == greenSlot) {
                 targetType = Bet.BetTargetType.GREEN;
-            } else if (slot == 50) {
+            } else if (slot == blackSlot) {
                 targetType = Bet.BetTargetType.BLACK;
             } else {
                 int number = RouletteGUI.getNumberFromSlot(slot);
@@ -197,7 +203,7 @@ public class BetListener implements Listener {
         }
 
         if (amount > maxBet) {
-            player.sendMessage(config.getMessageString("bet-amount-max").replace("{min}", String.valueOf(maxBet))); // Uses max text
+            player.sendMessage(config.getMessageString("bet-amount-max").replace("{max}", String.valueOf(maxBet)));
             return;
         }
 

@@ -33,7 +33,10 @@ public class RouletteManager {
     }
 
     public void loadTables() {
-        tables.values().forEach(this::cleanupTableEntities);
+        for (RouletteTable table : tables.values()) {
+            refundBets(table, "refund-message");
+            cleanupTableEntities(table);
+        }
         tables.clear();
 
         ConfigManager config = plugin.getConfigManager();
@@ -128,29 +131,12 @@ public class RouletteManager {
     }
 
     public boolean isTableBlock(Block block) {
-        for (RouletteTable table : tables.values()) {
-            for (Location loc : table.getPlacedBlocks()) {
-                if (loc.getBlockX() == block.getX() &&
-                        loc.getBlockY() == block.getY() &&
-                        loc.getBlockZ() == block.getZ() &&
-                        loc.getWorld().equals(block.getWorld())) {
-                    return true;
-                }
-            }
-            // Check base center block
-            Location center = table.getLocation();
-            if (center.getBlockX() == block.getX() &&
-                    center.getBlockY() == block.getY() &&
-                    center.getBlockZ() == block.getZ() &&
-                    center.getWorld().equals(block.getWorld())) {
-                return true;
-            }
-        }
-        return false;
+        return getTableAtBlock(block) != null;
     }
 
     public RouletteTable getTableAtBlock(Block block) {
         for (RouletteTable table : tables.values()) {
+            // Check dynamically placed fence/platform blocks first
             for (Location loc : table.getPlacedBlocks()) {
                 if (loc.getBlockX() == block.getX() &&
                         loc.getBlockY() == block.getY() &&
@@ -159,12 +145,18 @@ public class RouletteManager {
                     return table;
                 }
             }
+
+            // Also check bounding box around center location based on table size
             Location center = table.getLocation();
-            if (center.getBlockX() == block.getX() &&
-                    center.getBlockY() == block.getY() &&
-                    center.getBlockZ() == block.getZ() &&
-                    center.getWorld().equals(block.getWorld())) {
-                return table;
+            if (center.getWorld().equals(block.getWorld())) {
+                int halfSize = Math.max(1, table.getSize() / 2);
+                int dx = Math.abs(block.getX() - center.getBlockX());
+                int dy = Math.abs(block.getY() - center.getBlockY());
+                int dz = Math.abs(block.getZ() - center.getBlockZ());
+
+                if (dx <= halfSize && dz <= halfSize && dy <= 1) {
+                    return table;
+                }
             }
         }
         return null;
@@ -261,12 +253,9 @@ public class RouletteManager {
                 ticksElapsed += 2;
                 animIndex = (animIndex + 1) % WHEEL_NUMBERS.length;
                 int currNumber = WHEEL_NUMBERS[animIndex];
-                String colorStr = getNumberColorString(currNumber);
 
-                String text = config.getRawMessageString("hologram.spinning-status") + "\n&e" + currNumber + " (" + colorStr + ")";
-                if (table.getHologramEntity() != null && table.getHologramEntity().isValid()) {
-                    table.getHologramEntity().text(ColorUtil.component(config.getRawMessageString("hologram.title") + "\n\n" + text));
-                }
+                table.setCurrentSpinNumber(currNumber);
+                plugin.getHologramManager().spawnOrUpdateHologram(table);
 
                 // Sound effect
                 Location loc = table.getLocation();
@@ -282,23 +271,16 @@ public class RouletteManager {
 
     public void startResultPhase(RouletteTable table, int winningNumber) {
         table.setState(RouletteTable.TableState.RESULT);
+        table.setWinningNumber(winningNumber);
 
-        ConfigManager config = plugin.getConfigManager();
-        String winningColorStr = getNumberColorString(winningNumber);
-
-        String resultLine = config.getRawMessageString("hologram.result-status")
-                .replace("{number}", String.valueOf(winningNumber))
-                .replace("{color}", winningColorStr);
-
-        if (table.getHologramEntity() != null && table.getHologramEntity().isValid()) {
-            table.getHologramEntity().text(ColorUtil.component(config.getRawMessageString("hologram.title") + "\n\n" + resultLine));
-        }
+        plugin.getHologramManager().spawnOrUpdateHologram(table);
 
         Location loc = table.getLocation();
         loc.getWorld().playSound(loc, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
 
         processPayouts(table, winningNumber);
 
+        ConfigManager config = plugin.getConfigManager();
         int postDelay = config.getConfig().getInt("times.post-round-delay-seconds", 3);
         table.setActiveTask(new BukkitRunnable() {
             @Override

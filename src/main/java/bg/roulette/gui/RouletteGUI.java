@@ -19,15 +19,18 @@ public class RouletteGUI {
 
     private final Roulette plugin;
 
-    // Fixed slots layout for numbers 0 to 36 across slots 10-16, 19-25, 28-34, 37-43, etc.
-    private static final int[] NUMBER_SLOTS = {
-            13, // 0 green
-            10, 11, 12, 14, 15, 16, // 1 - 6
-            19, 20, 21, 22, 23, 24, 25, // 7 - 13
-            28, 29, 30, 31, 32, 33, 34, // 14 - 20
-            37, 38, 39, 40, 41, 42, 43, // 21 - 27
-            1, 2, 3, 4, 5, 6, 7, 8, 9 // 28 - 36
-    };
+    // 54 Slot Inventory Grid:
+    // Slot 4: Green 0
+    // Slots 9-44: Numbers 1-36 in neat 9-column rows (Rows 1 to 4)
+    // Slots 48, 49, 50: Action buttons for Red, Green, Black
+    private static final int[] NUMBER_SLOTS = new int[37];
+
+    static {
+        NUMBER_SLOTS[0] = 4; // Green 0 on top row center
+        for (int i = 1; i <= 36; i++) {
+            NUMBER_SLOTS[i] = 8 + i; // 1 -> 9, 2 -> 10 ... 36 -> 44
+        }
+    }
 
     public RouletteGUI(Roulette plugin) {
         this.plugin = plugin;
@@ -68,15 +71,15 @@ public class RouletteGUI {
 
             if (i == 0) {
                 mat = Material.LIME_STAINED_GLASS_PANE;
-                colorName = "&aЗелено";
+                colorName = config.getRawMessageString("bet-target-green");
                 multiplier = config.getConfig().getDouble("payouts.green", 32.0);
             } else if (plugin.getRouletteManager().isRed(i)) {
                 mat = Material.RED_STAINED_GLASS_PANE;
-                colorName = "&cЧервено";
+                colorName = config.getRawMessageString("bet-target-red");
                 multiplier = config.getConfig().getDouble("payouts.number", 24.0);
             } else {
                 mat = Material.GRAY_STAINED_GLASS_PANE;
-                colorName = "&8Черно";
+                colorName = config.getRawMessageString("bet-target-black");
                 multiplier = config.getConfig().getDouble("payouts.number", 24.0);
             }
 
