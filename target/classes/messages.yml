@@ -1,0 +1,42 @@
+no-permission: "&cНямате права за тази команда!"
+only-players: "&cТази команда може да се използва само от играчи!"
+unknown-command: "&cНепозната команда. Използвайте /roulette help"
+plugin-reloaded: "&aКонфигурационните файлове и масите бяха презаредени успешно!"
+
+table-created: "&aМаса &e{table} &aбеше създадена успешно с размер &e{size}&a!"
+table-deleted: "&cМаса &e{table} &cбеше изтрита успешно!"
+table-not-found: "&cНе е намерена маса с име &e{table}&c!"
+table-already-exists: "&cМаса с име &e{table} &cвече съществува!"
+table-size-changed: "&aРазмерът на маса &e{table} &aбеше променен на &e{size}&a!"
+table-size-invalid: "&cНевалиден размер! Размерът трябва да бъде между 2 и 5."
+not-near-table: "&cТрябва да сте до маса за рулетка (в рамките на 10 блока), за да заложите!"
+
+bet-already-placed: "&cВече имате активен залог за този рунд!"
+bet-round-spinning: "&cВ момента рулетката се върти! Изчакайте следващия рунд."
+bet-invalid-amount: "&cНевалидна сума за залог! Сумата трябва да е число."
+bet-amount-min: "&cМинималният залог е &e{min}$&c!"
+bet-amount-max: "&cМаксималният залог е &e{min}$&c!" # Note: template variable name max
+bet-insufficient-funds: "&cНямате достатъчно пари! Вашият баланс е &e{balance}$&c."
+bet-prompt: "&aВъведете сумата за вашия залог за &e{target} &aв чата (или напишете &c'cancel' &aза отказ):"
+bet-cancelled: "&cЗалогът беше отменен."
+bet-timeout: "&cВремето за въвеждане на залог изтече!"
+bet-success: "&aУспешно направихте залог от &e{amount}$ &aна &e{target}&a!"
+bet-target-invalid: "&cНевалидна цел за залог! Изберете червено, черно, зелено или число от 0 до 36."
+
+bet-target-red: "Червено"
+bet-target-black: "Черно"
+bet-target-green: "Зелено"
+bet-target-number: "Число {number}"
+
+win-message: "&aПоздравления! Вие спечелихте &e{amount}$ &aот рулетката!"
+lose-message: "&cЗа съжаление вашият залог не спечели в този рунд."
+broadcast-big-win: "&6&lКАЗИНО &8» &e{player} &aспечели &e{amount}$ &aна рулетката с залог на &e{target}&a!"
+refund-message: "&eРундът беше прекратен. Вашият залог от {amount}$ беше възстановен."
+
+hologram:
+  title: "&c&l🎲 РУЛЕТКА 🎲"
+  waiting-status: "&7Оставащо време: &e{time}сек."
+  bets-header: "&fЗалози в този рунд:"
+  bet-entry: "&7- &e{player}&7: &a{amount}$ &7на &f{target}"
+  spinning-status: "&e&l⚡ ВЪРТЕНЕ НА КОЛЕЛОТО... ⚡"
+  result-status: "&a&lРЕЗУЛТАТ: &e{number} ({color})"

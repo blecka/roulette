@@ -1,0 +1,13 @@
+/app/src/main/java/bg/roulette/Roulette.java
+/app/src/main/java/bg/roulette/command/RouletteCommand.java
+/app/src/main/java/bg/roulette/config/ConfigManager.java
+/app/src/main/java/bg/roulette/gui/RouletteGUI.java
+/app/src/main/java/bg/roulette/gui/RouletteHolder.java
+/app/src/main/java/bg/roulette/listener/BetListener.java
+/app/src/main/java/bg/roulette/listener/TableInteractListener.java
+/app/src/main/java/bg/roulette/manager/EconomyManager.java
+/app/src/main/java/bg/roulette/manager/HologramManager.java
+/app/src/main/java/bg/roulette/manager/RouletteManager.java
+/app/src/main/java/bg/roulette/model/Bet.java
+/app/src/main/java/bg/roulette/model/RouletteTable.java
+/app/src/main/java/bg/roulette/util/ColorUtil.java

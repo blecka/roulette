@@ -1,0 +1,21 @@
+# Конфигурация за плъгина Рулетка
+prefix: "&8[&cРулетка&8] "
+spawn-fence-material: "OAK_FENCE"
+spawn-fence: false
+
+limits:
+  min-bet: 100.0
+  max-bet: 100000.0
+  max-bets-per-round: 10
+  broadcast-win-amount: 5000.0
+
+times:
+  cooldown-seconds: 15
+  spin-duration-seconds: 5
+  post-round-delay-seconds: 3
+
+payouts:
+  number: 24.0
+  green: 32.0
+  red: 2.0
+  black: 2.0
