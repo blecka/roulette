@@ -35,6 +35,7 @@ refund-message: "&eРундът беше прекратен. Вашият зал
 
 hologram:
   title: "&c&l🎲 РУЛЕТКА 🎲"
+  waiting-for-bets: "&eИзчакване на залози..."
   waiting-status: "&7Оставащо време: &e{time}сек."
   bets-header: "&fЗалози в този рунд:"
   bet-entry: "&7- &e{player}&7: &a{amount}$ &7на {target}"

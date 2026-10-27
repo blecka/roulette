@@ -73,9 +73,13 @@ public class HologramManager {
 
         switch (table.getState()) {
             case WAITING -> {
-                String waitStatus = config.getRawMessageString("hologram.waiting-status")
-                        .replace("{time}", String.valueOf(table.getRemainingSeconds()));
-                lines.add(waitStatus);
+                if (table.getActiveBets().isEmpty()) {
+                    lines.add(config.getRawMessageString("hologram.waiting-for-bets"));
+                } else {
+                    String waitStatus = config.getRawMessageString("hologram.waiting-status")
+                            .replace("{time}", String.valueOf(table.getRemainingSeconds()));
+                    lines.add(waitStatus);
+                }
                 lines.add("");
                 lines.add(config.getRawMessageString("hologram.bets-header"));
 

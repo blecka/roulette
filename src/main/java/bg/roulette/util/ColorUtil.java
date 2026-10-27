@@ -9,8 +9,8 @@ import java.text.DecimalFormat;
 public class ColorUtil {
 
     private static final LegacyComponentSerializer SECTION_SERIALIZER = LegacyComponentSerializer.legacySection();
-    private static final DecimalFormat INT_FORMAT = new DecimalFormat("#,##0");
-    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0.00");
+    private static final DecimalFormat INT_FORMAT = new DecimalFormat("0");
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
 
     /**
      * Formats monetary amounts based on whether integer currency is enabled.

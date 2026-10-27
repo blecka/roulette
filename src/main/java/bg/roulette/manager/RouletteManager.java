@@ -352,6 +352,9 @@ public class RouletteManager {
         table.setState(RouletteTable.TableState.SPINNING);
         table.setTimerTaskRunning(false);
 
+        // Apply gentle outward knockback push to nearby players so they don't block the hologram/wheel
+        applySpinKnockback(table);
+
         ConfigManager config = plugin.getConfigManager();
         boolean refreshHoloSpin = config.getConfig().getBoolean("refresh-hologram-during-spin", false);
         int spinSeconds = config.getConfig().getInt("times.spin-duration-seconds", 5);
@@ -380,15 +383,15 @@ public class RouletteManager {
                 wheelOffset -= 0.05;
                 updateWheelDisplayPositions(table, wheelOffset);
 
-                // Easing formula for arrow: slows down smoothly towards target winning wool block
+                // Calculate arrow angle orbiting CLOCKWISE (opposite to counter-clockwise wheelOffset), decelerating smoothly
                 double progress = (double) ticksElapsed / totalTicks;
                 double easedProgress = Math.sin((progress * Math.PI) / 2.0); // Smooth deceleration curve
 
-                double totalRotations = Math.PI * 6.0; // 3 full counter-rotations
+                double totalRotations = Math.PI * 6.0; // 3 full rotations
                 double targetAngle = wheelOffset + (2.0 * Math.PI * winningIndex / WHEEL_NUMBERS.length);
-                double arrowAngle = targetAngle + (1.0 - easedProgress) * totalRotations;
+                double arrowAngle = targetAngle - (1.0 - easedProgress) * totalRotations;
 
-                // Update glowing arrow indicator directly above wool ring
+                // Update glowing arrow indicator facing fixed straight down
                 updateArrowBallEntity(table, arrowAngle);
 
                 // Play note block sound effect
@@ -405,6 +408,27 @@ public class RouletteManager {
         }.runTaskTimer(plugin, 2L, 2L));
     }
 
+    private void applySpinKnockback(RouletteTable table) {
+        Location center = table.getLocation().getBlock().getLocation().add(0.5, 0.5, 0.5);
+        World world = center.getWorld();
+        if (world == null) return;
+
+        double radius = Math.max(2.0, table.getSize() * 0.8 + 1.5);
+        world.getNearbyEntities(center, radius, 3.0, radius, entity -> entity instanceof Player)
+                .forEach(entity -> {
+                    Player p = (Player) entity;
+                    Vector dir = p.getLocation().toVector().subtract(center.toVector());
+                    dir.setY(0);
+                    if (dir.lengthSquared() < 0.01) {
+                        dir = new Vector(1, 0, 0);
+                    } else {
+                        dir.normalize();
+                    }
+                    dir.multiply(0.6).setY(0.25);
+                    p.setVelocity(dir);
+                });
+    }
+
     private void updateArrowBallEntity(RouletteTable table, double arrowAngle) {
         Location center = table.getLocation().getBlock().getLocation().add(0.5, 1.55, 0.5);
         World world = center.getWorld();
@@ -418,9 +442,9 @@ public class RouletteManager {
 
         Location targetLoc = new Location(world, ax, ay, az);
 
-        // Point arrow downward directly at the wool block slot
-        Vector direction = new Vector(0, -1, 0);
-        targetLoc.setDirection(direction);
+        // Fixed orientation: arrow stays continuously pointing straight downward (pitch = 90)
+        targetLoc.setPitch(90.0f);
+        targetLoc.setYaw(0.0f);
 
         Arrow arrow = table.getBallArrowEntity();
         if (arrow == null || !arrow.isValid()) {
