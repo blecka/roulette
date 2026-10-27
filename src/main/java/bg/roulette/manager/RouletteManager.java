@@ -142,7 +142,7 @@ public class RouletteManager {
                 }
             }
 
-            // Also check single central table location
+            // Also check central table location
             Location center = table.getLocation();
             if (center.getWorld().equals(block.getWorld())) {
                 if (Math.abs(block.getX() - center.getBlockX()) <= 1 &&
@@ -160,9 +160,9 @@ public class RouletteManager {
         boolean spawnFence = config.getConfig().getBoolean("spawn-fence", false);
         if (!spawnFence) return;
 
-        String matName = config.getConfig().getString("spawn-fence-material", "OAK_FENCE");
+        String matName = config.getConfig().getString("spawn-fence-material", "SMOOTH_STONE_SLAB");
         Material fenceMat = Material.matchMaterial(matName);
-        if (fenceMat == null) fenceMat = Material.OAK_FENCE;
+        if (fenceMat == null) fenceMat = Material.SMOOTH_STONE_SLAB;
 
         table.getPlacedBlocks().clear();
         Block baseBlock = table.getLocation().getBlock();
@@ -223,12 +223,13 @@ public class RouletteManager {
         int spinSeconds = config.getConfig().getInt("times.spin-duration-seconds", 5);
         int totalTicks = spinSeconds * 20;
 
-        int winningNumber = WHEEL_NUMBERS[ThreadLocalRandom.current().nextInt(WHEEL_NUMBERS.length)];
+        int winningIndex = ThreadLocalRandom.current().nextInt(WHEEL_NUMBERS.length);
+        int winningNumber = WHEEL_NUMBERS[winningIndex];
 
         table.setActiveTask(new BukkitRunnable() {
             int ticksElapsed = 0;
             int animIndex = 0;
-            double rotationOffset = 0.0;
+            double ballAngle = 0.0;
 
             @Override
             public void run() {
@@ -239,9 +240,13 @@ public class RouletteManager {
                 table.setCurrentSpinNumber(currNumber);
                 plugin.getHologramManager().spawnOrUpdateHologram(table);
 
-                // Spawn 3D Rotating Roulette Wheel Wave/Ring Particles
-                rotationOffset += 0.25;
-                spawnWheelParticles(table, rotationOffset);
+                // Calculate ball angle landing on target winning index as time runs out
+                double progress = (double) ticksElapsed / totalTicks;
+                double targetAngle = 2.0 * Math.PI * winningIndex / WHEEL_NUMBERS.length;
+                ballAngle = targetAngle + (1.0 - progress) * (Math.PI * 4.0);
+
+                // Spawn 3D Rotating Roulette Wheel Wave/Ring Particles + Rolling Ball
+                spawnWheelParticles(table, ballAngle);
 
                 // Sound effect
                 Location loc = table.getLocation();
@@ -255,7 +260,7 @@ public class RouletteManager {
         }.runTaskTimer(plugin, 2L, 2L));
     }
 
-    private void spawnWheelParticles(RouletteTable table, double rotationOffset) {
+    private void spawnWheelParticles(RouletteTable table, double ballAngle) {
         Location center = table.getLocation().clone().add(0.5, 1.8, 0.5);
         World world = center.getWorld();
         if (world == null) return;
@@ -267,13 +272,14 @@ public class RouletteManager {
         Particle.DustOptions blackDust = new Particle.DustOptions(org.bukkit.Color.fromRGB(30, 30, 30), 1.2f);
         Particle.DustOptions greenDust = new Particle.DustOptions(org.bukkit.Color.fromRGB(20, 230, 20), 1.5f);
 
+        // Render circular roulette wheel ring
         for (int i = 0; i < totalSlots; i++) {
             int number = WHEEL_NUMBERS[i];
-            double angle = rotationOffset + (2.0 * Math.PI * i / totalSlots);
+            double angle = (2.0 * Math.PI * i / totalSlots);
 
             double x = center.getX() + radius * Math.cos(angle);
             double z = center.getZ() + radius * Math.sin(angle);
-            double y = center.getY() + 0.15 * Math.sin(angle * 2.0); // subtle 3D wave height variation
+            double y = center.getY() + 0.1 * Math.sin(angle * 2.0); // 3D wave height variation
 
             Location particleLoc = new Location(world, x, y, z);
 
@@ -288,6 +294,16 @@ public class RouletteManager {
 
             world.spawnParticle(Particle.DUST, particleLoc, 1, 0, 0, 0, 0, options);
         }
+
+        // Render rolling white ball ("топчето")
+        double bx = center.getX() + radius * Math.cos(ballAngle);
+        double bz = center.getZ() + radius * Math.sin(ballAngle);
+        double by = center.getY() + 0.1 * Math.sin(ballAngle * 2.0) + 0.15;
+
+        Location ballLoc = new Location(world, bx, by, bz);
+        Particle.DustOptions whiteBall = new Particle.DustOptions(org.bukkit.Color.fromRGB(255, 255, 255), 2.2f);
+        world.spawnParticle(Particle.DUST, ballLoc, 3, 0.02, 0.02, 0.02, 0, whiteBall);
+        world.spawnParticle(Particle.END_ROD, ballLoc, 1, 0, 0, 0, 0.01);
     }
 
     public void startResultPhase(RouletteTable table, int winningNumber) {

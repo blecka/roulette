@@ -68,15 +68,15 @@ public class RouletteGUI {
             double multiplier;
 
             if (i == 0) {
-                mat = Material.LIME_STAINED_GLASS_PANE;
+                mat = Material.LIME_WOOL;
                 colorName = config.getRawMessageString("bet-target-green");
                 multiplier = config.getConfig().getDouble("payouts.green", 32.0);
             } else if (plugin.getRouletteManager().isRed(i)) {
-                mat = Material.RED_STAINED_GLASS_PANE;
+                mat = Material.RED_WOOL;
                 colorName = config.getRawMessageString("bet-target-red");
                 multiplier = config.getConfig().getDouble("payouts.number", 24.0);
             } else {
-                mat = Material.GRAY_STAINED_GLASS_PANE;
+                mat = Material.BLACK_WOOL;
                 colorName = config.getRawMessageString("bet-target-black");
                 multiplier = config.getConfig().getDouble("payouts.number", 24.0);
             }
