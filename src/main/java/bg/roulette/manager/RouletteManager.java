@@ -8,6 +8,7 @@ import bg.roulette.util.ColorUtil;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Display;
@@ -84,7 +85,8 @@ public class RouletteManager {
     }
 
     public RouletteTable createTable(String name, Location location, int size) {
-        RouletteTable table = new RouletteTable(name, location, size);
+        Location centerBlockLoc = location.getBlock().getLocation();
+        RouletteTable table = new RouletteTable(name, centerBlockLoc, size);
         tables.put(name.toLowerCase(), table);
         buildPlatform(table);
         spawnWheelBlockDisplays(table, 0.0);
@@ -194,7 +196,7 @@ public class RouletteManager {
     public void spawnWheelBlockDisplays(RouletteTable table, double wheelRotationOffset) {
         removeWheelBlockDisplays(table);
 
-        Location center = table.getLocation().clone().add(0.5, 1.2, 0.5);
+        Location center = table.getLocation().getBlock().getLocation().add(0.5, 1.2, 0.5);
         World world = center.getWorld();
         if (world == null) return;
 
@@ -205,15 +207,15 @@ public class RouletteManager {
             int number = WHEEL_NUMBERS[i];
             double angle = wheelRotationOffset + (2.0 * Math.PI * i / totalSlots);
 
-            double x = center.getX() + radius * Math.cos(angle);
-            double z = center.getZ() + radius * Math.sin(angle);
+            double x = center.getX() + radius * Math.cos(angle) - 0.175;
+            double z = center.getZ() + radius * Math.sin(angle) - 0.175;
             double y = center.getY();
 
             Location blockLoc = new Location(world, x, y, z);
 
             Material woolMat;
             if (number == 0) {
-                woolMat = Material.CYAN_WOOL;
+                woolMat = Material.LIME_WOOL;
             } else if (isRed(number)) {
                 woolMat = Material.RED_WOOL;
             } else {
@@ -229,19 +231,19 @@ public class RouletteManager {
 
             table.getWheelDisplays().add(display);
 
-            // Add number hologram label directly above wool block
-            Location labelLoc = blockLoc.clone().add(0.175, 0.45, 0.175);
+            // Add number hologram label in clean white directly above wool block
+            Location labelLoc = new Location(world, center.getX() + radius * Math.cos(angle), y + 0.45, center.getZ() + radius * Math.sin(angle));
             TextDisplay label = (TextDisplay) world.spawnEntity(labelLoc, EntityType.TEXT_DISPLAY);
             label.setBillboard(Display.Billboard.CENTER);
             label.setDefaultBackground(false);
-            label.text(ColorUtil.component(getNumberColorCode(number) + number));
+            label.text(ColorUtil.component("&f" + number));
 
             table.getWheelLabels().add(label);
         }
     }
 
     public void updateWheelDisplayPositions(RouletteTable table, double wheelRotationOffset) {
-        Location center = table.getLocation().clone().add(0.5, 1.2, 0.5);
+        Location center = table.getLocation().getBlock().getLocation().add(0.5, 1.2, 0.5);
         World world = center.getWorld();
         if (world == null) return;
 
@@ -256,8 +258,8 @@ public class RouletteManager {
         for (int i = 0; i < totalSlots; i++) {
             double angle = wheelRotationOffset + (2.0 * Math.PI * i / totalSlots);
 
-            double x = center.getX() + radius * Math.cos(angle);
-            double z = center.getZ() + radius * Math.sin(angle);
+            double x = center.getX() + radius * Math.cos(angle) - 0.175;
+            double z = center.getZ() + radius * Math.sin(angle) - 0.175;
             double y = center.getY();
 
             Location blockLoc = new Location(world, x, y, z);
@@ -266,7 +268,7 @@ public class RouletteManager {
                 display.teleport(blockLoc);
             }
 
-            Location labelLoc = blockLoc.clone().add(0.175, 0.45, 0.175);
+            Location labelLoc = new Location(world, center.getX() + radius * Math.cos(angle), y + 0.45, center.getZ() + radius * Math.sin(angle));
             TextDisplay label = table.getWheelLabels().get(i);
             if (label != null && label.isValid()) {
                 label.teleport(labelLoc);
@@ -289,6 +291,9 @@ public class RouletteManager {
         }
         table.getWheelLabels().clear();
 
+        if (table.getBallArrowEntity() != null && table.getBallArrowEntity().isValid()) {
+            table.getBallArrowEntity().remove();
+        }
         table.setBallArrowEntity(null);
     }
 
@@ -359,28 +364,33 @@ public class RouletteManager {
                 wheelOffset -= 0.05;
                 updateWheelDisplayPositions(table, wheelOffset);
 
-                // Calculate arrow angle spinning clockwise in opposite direction, slowing down to winning slot position
+                // Easing formula for arrow: slows down smoothly towards target winning wool block
                 double progress = (double) ticksElapsed / totalTicks;
-                double targetAngle = wheelOffset + (2.0 * Math.PI * winningIndex / WHEEL_NUMBERS.length);
-                double arrowAngle = targetAngle + (1.0 - progress) * (Math.PI * 4.0);
+                double easedProgress = Math.sin((progress * Math.PI) / 2.0); // Smooth deceleration curve
 
-                // Spawn/update counter-rotating Arrow indicator
+                double totalRotations = Math.PI * 6.0; // 3 full counter-rotations
+                double targetAngle = wheelOffset + (2.0 * Math.PI * winningIndex / WHEEL_NUMBERS.length);
+                double arrowAngle = targetAngle + (1.0 - easedProgress) * totalRotations;
+
+                // Update glowing arrow indicator
                 updateArrowBallEntity(table, arrowAngle);
 
-                // Sound effect
+                // Play note block sound effect
                 Location loc = table.getLocation();
                 loc.getWorld().playSound(loc, Sound.BLOCK_NOTE_BLOCK_SNARE, 1.0f, 1.2f);
 
                 if (ticksElapsed >= totalTicks) {
                     cancel();
-                    startResultPhase(table, winningNumber);
+                    // Hold arrow steady above winning block for 1 second before revealing result
+                    updateArrowBallEntity(table, targetAngle);
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> startResultPhase(table, winningNumber), 20L);
                 }
             }
         }.runTaskTimer(plugin, 2L, 2L));
     }
 
     private void updateArrowBallEntity(RouletteTable table, double arrowAngle) {
-        Location center = table.getLocation().clone().add(0.5, 1.8, 0.5);
+        Location center = table.getLocation().getBlock().getLocation().add(0.5, 1.7, 0.5);
         World world = center.getWorld();
         if (world == null) return;
 
@@ -392,7 +402,7 @@ public class RouletteManager {
 
         Location targetLoc = new Location(world, ax, ay, az);
 
-        // Point arrow downward pointing at the wool block slot
+        // Point arrow downward directly at the wool block slot
         Vector direction = new Vector(0, -1, 0);
         targetLoc.setDirection(direction);
 
@@ -401,16 +411,16 @@ public class RouletteManager {
             arrow = (Arrow) world.spawnEntity(targetLoc, EntityType.ARROW);
             arrow.setGravity(false);
             arrow.setPersistent(false);
+            arrow.setGlowing(true);
+            arrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
             table.setBallArrowEntity(arrow);
         } else {
             arrow.teleport(targetLoc);
             arrow.setVelocity(new Vector(0, 0, 0));
+            if (!arrow.isGlowing()) {
+                arrow.setGlowing(true);
+            }
         }
-
-        // Particle trail around the arrow
-        Particle.DustOptions whiteDust = new Particle.DustOptions(org.bukkit.Color.fromRGB(255, 255, 255), 2.0f);
-        world.spawnParticle(Particle.DUST, targetLoc, 3, 0.02, 0.02, 0.02, 0, whiteDust);
-        world.spawnParticle(Particle.END_ROD, targetLoc, 1, 0, 0, 0, 0.01);
     }
 
     public void startResultPhase(RouletteTable table, int winningNumber) {

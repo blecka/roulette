@@ -40,5 +40,5 @@ hologram:
   bet-entry: "&7- &e{player}&7: &a{amount}$ &7на {target}"
   no-bets: "&7- &f(Няма направени залози)"
   spinning-status: "&e&l⚡ ВЪРТЕНЕ НА КОЛЕЛОТО... ⚡"
-  spinning-number: "{color}{number} ({color_name}&r)"
+  spinning-number: "{color}{number} ({color_name}{color})"
   result-status: "&a&lРЕЗУЛТАТ: {color}{number} ({color_name}&a&l)"
