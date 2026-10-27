@@ -99,18 +99,24 @@ public class HologramManager {
             case SPINNING -> {
                 lines.add(config.getRawMessageString("hologram.spinning-status"));
                 int num = table.getCurrentSpinNumber();
-                String colorStr = plugin.getRouletteManager().getNumberColorString(num);
+                String colorCode = plugin.getRouletteManager().getNumberColorCode(num);
+                String colorName = plugin.getRouletteManager().getNumberColorString(num);
+
                 String animLine = config.getRawMessageString("hologram.spinning-number")
                         .replace("{number}", String.valueOf(num))
-                        .replace("{color}", colorStr);
+                        .replace("{color}", colorCode)
+                        .replace("{color_name}", colorName);
                 lines.add(animLine);
             }
             case RESULT -> {
                 int winNum = table.getWinningNumber();
-                String colorStr = plugin.getRouletteManager().getNumberColorString(winNum);
+                String colorCode = plugin.getRouletteManager().getNumberColorCode(winNum);
+                String colorName = plugin.getRouletteManager().getNumberColorString(winNum);
+
                 String resLine = config.getRawMessageString("hologram.result-status")
                         .replace("{number}", String.valueOf(winNum))
-                        .replace("{color}", colorStr);
+                        .replace("{color}", colorCode)
+                        .replace("{color_name}", colorName);
                 lines.add(resLine);
             }
         }

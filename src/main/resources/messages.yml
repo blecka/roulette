@@ -3,12 +3,12 @@ only-players: "&cТази команда може да се използва с�
 unknown-command: "&cНепозната команда. Използвайте /roulette help"
 plugin-reloaded: "&aКонфигурационните файлове и масите бяха презаредени успешно!"
 
-table-created: "&aМаса &e{table} &aбеше създадена успешно с размер &e{size}&a!"
+table-created: "&aМаса &e{table} &aбеше създадена успешно с радиус на анимация &e{size}&a!"
 table-deleted: "&cМаса &e{table} &cбеше изтрита успешно!"
 table-not-found: "&cНе е намерена маса с име &e{table}&c!"
 table-already-exists: "&cМаса с име &e{table} &cвече съществува!"
-table-size-changed: "&aРазмерът на маса &e{table} &aбеше променен на &e{size}&a!"
-table-size-invalid: "&cНевалиден размер! Размерът трябва да бъде между 2 и 5."
+table-size-changed: "&aРадиусът на анимацията за маса &e{table} &aбеше променен на &e{size}&a!"
+table-size-invalid: "&cНевалиден размер! Радиусът трябва да бъде между 1 и 5."
 not-near-table: "&cТрябва да сте до маса за рулетка (в рамките на 10 блока), за да заложите!"
 
 bet-already-placed: "&cВече имате активен залог за този рунд!"
@@ -40,5 +40,5 @@ hologram:
   bet-entry: "&7- &e{player}&7: &a{amount}$ &7на &f{target}"
   no-bets: "&7- &f(Няма направени залози)"
   spinning-status: "&e&l⚡ ВЪРТЕНЕ НА КОЛЕЛОТО... ⚡"
-  spinning-number: "&e{number} ({color})"
-  result-status: "&a&lРЕЗУЛТАТ: &e{number} ({color})"
+  spinning-number: "{color}{number} ({color_name}&r)"
+  result-status: "&a&lРЕЗУЛТАТ: {color}{number} ({color_name}&a&l)"

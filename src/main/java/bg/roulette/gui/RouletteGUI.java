@@ -20,15 +20,13 @@ public class RouletteGUI {
     private final Roulette plugin;
 
     // 54 Slot Inventory Grid:
-    // Slot 4: Green 0
-    // Slots 9-44: Numbers 1-36 in neat 9-column rows (Rows 1 to 4)
-    // Slots 48, 49, 50: Action buttons for Red, Green, Black
+    // Slots 0 to 36: Numbers 0 through 36 placed in sequential order in slots 0..36
+    // Row 5 (Slots 48, 49, 50): Special buttons for Red, Green (0), Black
     private static final int[] NUMBER_SLOTS = new int[37];
 
     static {
-        NUMBER_SLOTS[0] = 4; // Green 0 on top row center
-        for (int i = 1; i <= 36; i++) {
-            NUMBER_SLOTS[i] = 8 + i; // 1 -> 9, 2 -> 10 ... 36 -> 44
+        for (int i = 0; i <= 36; i++) {
+            NUMBER_SLOTS[i] = i; // Sequential slots 0..36
         }
     }
 

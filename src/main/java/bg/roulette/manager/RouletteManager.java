@@ -5,11 +5,7 @@ import bg.roulette.config.ConfigManager;
 import bg.roulette.model.Bet;
 import bg.roulette.model.RouletteTable;
 import bg.roulette.util.ColorUtil;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -136,7 +132,7 @@ public class RouletteManager {
 
     public RouletteTable getTableAtBlock(Block block) {
         for (RouletteTable table : tables.values()) {
-            // Check dynamically placed fence/platform blocks first
+            // Check placed block base
             for (Location loc : table.getPlacedBlocks()) {
                 if (loc.getBlockX() == block.getX() &&
                         loc.getBlockY() == block.getY() &&
@@ -146,15 +142,12 @@ public class RouletteManager {
                 }
             }
 
-            // Also check bounding box around center location based on table size
+            // Also check single central table location
             Location center = table.getLocation();
             if (center.getWorld().equals(block.getWorld())) {
-                int halfSize = Math.max(1, table.getSize() / 2);
-                int dx = Math.abs(block.getX() - center.getBlockX());
-                int dy = Math.abs(block.getY() - center.getBlockY());
-                int dz = Math.abs(block.getZ() - center.getBlockZ());
-
-                if (dx <= halfSize && dz <= halfSize && dy <= 1) {
+                if (Math.abs(block.getX() - center.getBlockX()) <= 1 &&
+                        Math.abs(block.getZ() - center.getBlockZ()) <= 1 &&
+                        Math.abs(block.getY() - center.getBlockY()) <= 1) {
                     return table;
                 }
             }
@@ -172,21 +165,9 @@ public class RouletteManager {
         if (fenceMat == null) fenceMat = Material.OAK_FENCE;
 
         table.getPlacedBlocks().clear();
-        Location center = table.getLocation().getBlock().getLocation();
-        int halfSize = table.getSize() / 2;
-
-        for (int x = -halfSize; x <= halfSize; x++) {
-            for (int z = -halfSize; z <= halfSize; z++) {
-                // Place fence along perimeter
-                if (x == -halfSize || x == halfSize || z == -halfSize || z == halfSize) {
-                    Block block = center.clone().add(x, 0, z).getBlock();
-                    if (block.getType() == Material.AIR || block.getType().name().contains("FENCE")) {
-                        block.setType(fenceMat);
-                        table.getPlacedBlocks().add(block.getLocation());
-                    }
-                }
-            }
-        }
+        Block baseBlock = table.getLocation().getBlock();
+        baseBlock.setType(fenceMat);
+        table.getPlacedBlocks().add(baseBlock.getLocation());
     }
 
     public void removePlatform(RouletteTable table) {
@@ -247,6 +228,7 @@ public class RouletteManager {
         table.setActiveTask(new BukkitRunnable() {
             int ticksElapsed = 0;
             int animIndex = 0;
+            double rotationOffset = 0.0;
 
             @Override
             public void run() {
@@ -256,6 +238,10 @@ public class RouletteManager {
 
                 table.setCurrentSpinNumber(currNumber);
                 plugin.getHologramManager().spawnOrUpdateHologram(table);
+
+                // Spawn 3D Rotating Roulette Wheel Wave/Ring Particles
+                rotationOffset += 0.25;
+                spawnWheelParticles(table, rotationOffset);
 
                 // Sound effect
                 Location loc = table.getLocation();
@@ -267,6 +253,41 @@ public class RouletteManager {
                 }
             }
         }.runTaskTimer(plugin, 2L, 2L));
+    }
+
+    private void spawnWheelParticles(RouletteTable table, double rotationOffset) {
+        Location center = table.getLocation().clone().add(0.5, 1.8, 0.5);
+        World world = center.getWorld();
+        if (world == null) return;
+
+        double radius = Math.max(0.8, table.getSize() * 0.6); // Based on table size parameter
+        int totalSlots = WHEEL_NUMBERS.length;
+
+        Particle.DustOptions redDust = new Particle.DustOptions(org.bukkit.Color.fromRGB(230, 20, 20), 1.2f);
+        Particle.DustOptions blackDust = new Particle.DustOptions(org.bukkit.Color.fromRGB(30, 30, 30), 1.2f);
+        Particle.DustOptions greenDust = new Particle.DustOptions(org.bukkit.Color.fromRGB(20, 230, 20), 1.5f);
+
+        for (int i = 0; i < totalSlots; i++) {
+            int number = WHEEL_NUMBERS[i];
+            double angle = rotationOffset + (2.0 * Math.PI * i / totalSlots);
+
+            double x = center.getX() + radius * Math.cos(angle);
+            double z = center.getZ() + radius * Math.sin(angle);
+            double y = center.getY() + 0.15 * Math.sin(angle * 2.0); // subtle 3D wave height variation
+
+            Location particleLoc = new Location(world, x, y, z);
+
+            Particle.DustOptions options;
+            if (number == 0) {
+                options = greenDust;
+            } else if (isRed(number)) {
+                options = redDust;
+            } else {
+                options = blackDust;
+            }
+
+            world.spawnParticle(Particle.DUST, particleLoc, 1, 0, 0, 0, 0, options);
+        }
     }
 
     public void startResultPhase(RouletteTable table, int winningNumber) {
@@ -406,6 +427,12 @@ public class RouletteManager {
     public boolean isBlack(int number) {
         if (number <= 0 || number > 36) return false;
         return !isRed(number);
+    }
+
+    public String getNumberColorCode(int number) {
+        if (number == 0) return "&a";
+        if (isRed(number)) return "&c";
+        return "&8";
     }
 
     public String getNumberColorString(int number) {

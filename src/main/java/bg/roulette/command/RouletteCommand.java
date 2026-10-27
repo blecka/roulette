@@ -66,7 +66,7 @@ public class RouletteCommand implements CommandExecutor, TabCompleter {
                     }
                 }
 
-                if (size < 2 || size > 5) {
+                if (size < 1 || size > 5) {
                     player.sendMessage(config.getMessageString("table-size-invalid"));
                     return true;
                 }
@@ -104,7 +104,7 @@ public class RouletteCommand implements CommandExecutor, TabCompleter {
                 }
 
                 if (args.length < 3) {
-                    sender.sendMessage(ColorUtil.color("&cУпотреба: /roulette size <име> <2-5>"));
+                    sender.sendMessage(ColorUtil.color("&cУпотреба: /roulette size <име> <1-5>"));
                     return true;
                 }
 
@@ -123,7 +123,7 @@ public class RouletteCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
 
-                if (newSize < 2 || newSize > 5) {
+                if (newSize < 1 || newSize > 5) {
                     sender.sendMessage(config.getMessageString("table-size-invalid"));
                     return true;
                 }
@@ -217,7 +217,7 @@ public class RouletteCommand implements CommandExecutor, TabCompleter {
         if (sender.hasPermission("roulette.admin")) {
             sender.sendMessage(ColorUtil.color("&e/roulette create <име> [размер] &7- Създаване на маса"));
             sender.sendMessage(ColorUtil.color("&e/roulette delete <име> &7- Изтриване на маса"));
-            sender.sendMessage(ColorUtil.color("&e/roulette size <име> <2-5> &7- Промяна на размер"));
+            sender.sendMessage(ColorUtil.color("&e/roulette size <име> <1-5> &7- Промяна на размер (радиус на анимацията)"));
             sender.sendMessage(ColorUtil.color("&e/roulette reload &7- Презареждане на конфигурацията"));
         }
         sender.sendMessage(ColorUtil.color("&8&m---------------------------------------------"));
@@ -249,6 +249,7 @@ public class RouletteCommand implements CommandExecutor, TabCompleter {
         } else if (args.length == 3) {
             String sub = args[0].toLowerCase();
             if (sub.equals("create") || sub.equals("size")) {
+                completions.add("1");
                 completions.add("2");
                 completions.add("3");
                 completions.add("4");
