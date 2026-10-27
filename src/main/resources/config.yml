@@ -3,6 +3,7 @@ prefix: "&8[&cРулетка&8] "
 spawn-fence-material: "VERDANT_FROGLIGHT"
 spawn-fence: true
 use-integer-currency: true
+refresh-hologram-during-spin: false
 
 limits:
   min-bet: 100.0

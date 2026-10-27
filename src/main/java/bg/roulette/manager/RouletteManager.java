@@ -109,6 +109,7 @@ public class RouletteManager {
 
     public void resizeTable(RouletteTable table, int newSize) {
         removePlatform(table);
+        removeWheelBlockDisplays(table);
         cleanupTableEntities(table);
         table.setSize(newSize);
         buildPlatform(table);
@@ -352,6 +353,7 @@ public class RouletteManager {
         table.setTimerTaskRunning(false);
 
         ConfigManager config = plugin.getConfigManager();
+        boolean refreshHoloSpin = config.getConfig().getBoolean("refresh-hologram-during-spin", false);
         int spinSeconds = config.getConfig().getInt("times.spin-duration-seconds", 5);
         int totalTicks = spinSeconds * 20;
 
@@ -370,7 +372,9 @@ public class RouletteManager {
                 int currNumber = WHEEL_NUMBERS[animIndex];
 
                 table.setCurrentSpinNumber(currNumber);
-                plugin.getHologramManager().spawnOrUpdateHologram(table);
+                if (refreshHoloSpin) {
+                    plugin.getHologramManager().spawnOrUpdateHologram(table);
+                }
 
                 // Rotate wheel blocks counter-clockwise
                 wheelOffset -= 0.05;
@@ -384,7 +388,7 @@ public class RouletteManager {
                 double targetAngle = wheelOffset + (2.0 * Math.PI * winningIndex / WHEEL_NUMBERS.length);
                 double arrowAngle = targetAngle + (1.0 - easedProgress) * totalRotations;
 
-                // Update glowing arrow indicator
+                // Update glowing arrow indicator directly above wool ring
                 updateArrowBallEntity(table, arrowAngle);
 
                 // Play note block sound effect
@@ -402,7 +406,7 @@ public class RouletteManager {
     }
 
     private void updateArrowBallEntity(RouletteTable table, double arrowAngle) {
-        Location center = table.getLocation().getBlock().getLocation().add(0.5, 1.7, 0.5);
+        Location center = table.getLocation().getBlock().getLocation().add(0.5, 1.55, 0.5);
         World world = center.getWorld();
         if (world == null) return;
 
