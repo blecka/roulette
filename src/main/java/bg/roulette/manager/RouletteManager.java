@@ -170,6 +170,8 @@ public class RouletteManager {
 
     public void buildPlatform(RouletteTable table) {
         ConfigManager config = plugin.getConfigManager();
+        boolean spawnFence = config.getConfig().getBoolean("spawn-fence", true);
+        if (!spawnFence) return;
 
         String matName = config.getConfig().getString("spawn-fence-material", "VERDANT_FROGLIGHT");
         Material fenceMat = Material.matchMaterial(matName);
