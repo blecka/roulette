@@ -50,7 +50,17 @@ public class Bet {
             case RED -> redText;
             case BLACK -> blackText;
             case GREEN -> greenText;
-            case NUMBER -> numberTemplate.replace("{number}", String.valueOf(targetNumber));
+            case NUMBER -> {
+                String colorCode = (targetNumber == 0) ? "&a" : (isRed(targetNumber) ? "&c" : "&8");
+                yield numberTemplate.replace("{color}", colorCode).replace("{number}", String.valueOf(targetNumber));
+            }
+        };
+    }
+
+    private boolean isRed(int number) {
+        return switch (number) {
+            case 1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36 -> true;
+            default -> false;
         };
     }
 }

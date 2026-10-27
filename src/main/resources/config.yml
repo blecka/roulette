@@ -1,7 +1,7 @@
 # Конфигурация за плъгина Рулетка
 prefix: "&8[&cРулетка&8] "
-spawn-fence-material: "OAK_FENCE"
-spawn-fence: false
+spawn-fence-material: "VERDANT_FROGLIGHT"
+spawn-fence: true
 
 limits:
   min-bet: 100.0

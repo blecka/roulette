@@ -20,13 +20,14 @@ public class RouletteGUI {
     private final Roulette plugin;
 
     // 54 Slot Inventory Grid:
-    // Slots 0 to 36: Numbers 0 through 36 placed in sequential order in slots 0..36
-    // Row 5 (Slots 48, 49, 50): Special buttons for Red, Green (0), Black
+    // Slots 9 to 44: Numbers 1 through 36 placed in upper 4 rows (9..44)
+    // Slot 49 on bottom row reserved exclusively for Green (0)
     private static final int[] NUMBER_SLOTS = new int[37];
 
     static {
-        for (int i = 0; i <= 36; i++) {
-            NUMBER_SLOTS[i] = i; // Sequential slots 0..36
+        NUMBER_SLOTS[0] = 49; // Green 0 on bottom row center
+        for (int i = 1; i <= 36; i++) {
+            NUMBER_SLOTS[i] = 8 + i; // Numbers 1..36 occupy slots 9..44
         }
     }
 
@@ -60,25 +61,19 @@ public class RouletteGUI {
             inv.setItem(i, fillerItem);
         }
 
-        // Setup Numbers 0 - 36
-        for (int i = 0; i <= 36; i++) {
+        // Setup Numbers 1 - 36 in top rows 9..44
+        for (int i = 1; i <= 36; i++) {
             int slot = NUMBER_SLOTS[i];
             Material mat;
             String colorName;
-            double multiplier;
+            double multiplier = config.getConfig().getDouble("payouts.number", 24.0);
 
-            if (i == 0) {
-                mat = Material.LIME_WOOL;
-                colorName = config.getRawMessageString("bet-target-green");
-                multiplier = config.getConfig().getDouble("payouts.green", 32.0);
-            } else if (plugin.getRouletteManager().isRed(i)) {
+            if (plugin.getRouletteManager().isRed(i)) {
                 mat = Material.RED_WOOL;
                 colorName = config.getRawMessageString("bet-target-red");
-                multiplier = config.getConfig().getDouble("payouts.number", 24.0);
             } else {
                 mat = Material.BLACK_WOOL;
                 colorName = config.getRawMessageString("bet-target-black");
-                multiplier = config.getConfig().getDouble("payouts.number", 24.0);
             }
 
             ItemStack numItem = new ItemStack(mat);
@@ -94,7 +89,7 @@ public class RouletteGUI {
             inv.setItem(slot, numItem);
         }
 
-        // Setup Special Buttons (Red, Green, Black)
+        // Setup Bottom Row Action Buttons (Red, Green 0, Black)
         setupSpecialButton(inv, guiCfg, "red-button", 48, Material.RED_CONCRETE, "&c&lЧЕРВЕНО");
         setupSpecialButton(inv, guiCfg, "green-button", 49, Material.LIME_CONCRETE, "&a&lЗЕЛЕНО (0)");
         setupSpecialButton(inv, guiCfg, "black-button", 50, Material.BLACK_CONCRETE, "&8&lЧЕРНО");
@@ -126,7 +121,7 @@ public class RouletteGUI {
     }
 
     public static int getNumberFromSlot(int slot) {
-        for (int i = 0; i < NUMBER_SLOTS.length; i++) {
+        for (int i = 1; i <= 36; i++) {
             if (NUMBER_SLOTS[i] == slot) {
                 return i;
             }

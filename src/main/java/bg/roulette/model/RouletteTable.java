@@ -1,6 +1,7 @@
 package bg.roulette.model;
 
 import org.bukkit.Location;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.scheduler.BukkitTask;
@@ -23,6 +24,8 @@ public class RouletteTable {
     private final Map<UUID, Bet> activeBets = new HashMap<>();
     private final List<Location> placedBlocks = new ArrayList<>();
     private final List<BlockDisplay> wheelDisplays = new ArrayList<>();
+    private final List<TextDisplay> wheelLabels = new ArrayList<>();
+    private Arrow ballArrowEntity;
 
     private TextDisplay hologramEntity;
     private BukkitTask activeTask;
@@ -83,6 +86,21 @@ public class RouletteTable {
 
     public List<BlockDisplay> getWheelDisplays() {
         return wheelDisplays;
+    }
+
+    public List<TextDisplay> getWheelLabels() {
+        return wheelLabels;
+    }
+
+    public Arrow getBallArrowEntity() {
+        return ballArrowEntity;
+    }
+
+    public void setBallArrowEntity(Arrow ballArrowEntity) {
+        if (this.ballArrowEntity != null && this.ballArrowEntity.isValid()) {
+            this.ballArrowEntity.remove();
+        }
+        this.ballArrowEntity = ballArrowEntity;
     }
 
     public TextDisplay getHologramEntity() {

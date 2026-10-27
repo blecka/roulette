@@ -177,6 +177,11 @@ public class BetListener implements Listener {
             return;
         }
 
+        if (Double.isNaN(amount) || Double.isInfinite(amount) || amount <= 0) {
+            player.sendMessage(config.getMessageString("bet-invalid-amount"));
+            return;
+        }
+
         // Run betting logic synchronously on main thread
         Bukkit.getScheduler().runTask(plugin, () -> processBet(player, pending.getTable(), amount, pending.getTargetType(), pending.getTargetNumber()));
     }
@@ -191,6 +196,11 @@ public class BetListener implements Listener {
 
         if (table.hasPlayerBet(player.getUniqueId())) {
             player.sendMessage(config.getMessageString("bet-already-placed"));
+            return;
+        }
+
+        if (Double.isNaN(amount) || Double.isInfinite(amount) || amount <= 0) {
+            player.sendMessage(config.getMessageString("bet-invalid-amount"));
             return;
         }
 
