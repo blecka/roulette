@@ -183,8 +183,9 @@ public class RouletteCommand implements CommandExecutor, TabCompleter {
                     targetType = Bet.BetTargetType.RED;
                 } else if (targetStr.equals("black") || targetStr.equals("черно")) {
                     targetType = Bet.BetTargetType.BLACK;
-                } else if (targetStr.equals("green") || targetStr.equals("зелено")) {
+                } else if (targetStr.equals("green") || targetStr.equals("зелено") || targetStr.equals("0")) {
                     targetType = Bet.BetTargetType.GREEN;
+                    targetNumber = 0;
                 } else {
                     try {
                         int num = Integer.parseInt(targetStr);
@@ -192,8 +193,13 @@ public class RouletteCommand implements CommandExecutor, TabCompleter {
                             player.sendMessage(config.getMessageString("bet-target-invalid"));
                             return true;
                         }
-                        targetType = Bet.BetTargetType.NUMBER;
-                        targetNumber = num;
+                        if (num == 0) {
+                            targetType = Bet.BetTargetType.GREEN;
+                            targetNumber = 0;
+                        } else {
+                            targetType = Bet.BetTargetType.NUMBER;
+                            targetNumber = num;
+                        }
                     } catch (NumberFormatException e) {
                         player.sendMessage(config.getMessageString("bet-target-invalid"));
                         return true;

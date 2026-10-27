@@ -102,13 +102,19 @@ public class BetListener implements Listener {
                 targetType = Bet.BetTargetType.RED;
             } else if (slot == greenSlot) {
                 targetType = Bet.BetTargetType.GREEN;
+                targetNumber = 0;
             } else if (slot == blackSlot) {
                 targetType = Bet.BetTargetType.BLACK;
             } else {
                 int number = RouletteGUI.getNumberFromSlot(slot);
                 if (number != -1) {
-                    targetType = Bet.BetTargetType.NUMBER;
-                    targetNumber = number;
+                    if (number == 0) {
+                        targetType = Bet.BetTargetType.GREEN;
+                        targetNumber = 0;
+                    } else {
+                        targetType = Bet.BetTargetType.NUMBER;
+                        targetNumber = number;
+                    }
                 }
             }
 
@@ -188,6 +194,7 @@ public class BetListener implements Listener {
 
     public void processBet(Player player, RouletteTable table, double amount, Bet.BetTargetType targetType, int targetNumber) {
         ConfigManager config = plugin.getConfigManager();
+        boolean useIntCurrency = config.getConfig().getBoolean("use-integer-currency", true);
 
         if (table.getState() == RouletteTable.TableState.SPINNING) {
             player.sendMessage(config.getMessageString("bet-round-spinning"));
@@ -208,23 +215,27 @@ public class BetListener implements Listener {
         double maxBet = config.getConfig().getDouble("limits.max-bet", 100000.0);
 
         if (amount < minBet) {
-            player.sendMessage(config.getMessageString("bet-amount-min").replace("{min}", String.valueOf(minBet)));
+            String formattedMin = ColorUtil.formatMoney(minBet, useIntCurrency);
+            player.sendMessage(config.getMessageString("bet-amount-min").replace("{min}", formattedMin));
             return;
         }
 
         if (amount > maxBet) {
-            player.sendMessage(config.getMessageString("bet-amount-max").replace("{max}", String.valueOf(maxBet)));
+            String formattedMax = ColorUtil.formatMoney(maxBet, useIntCurrency);
+            player.sendMessage(config.getMessageString("bet-amount-max").replace("{max}", formattedMax));
             return;
         }
 
         double balance = plugin.getEconomyManager().getBalance(player);
         if (balance < amount) {
-            player.sendMessage(config.getMessageString("bet-insufficient-funds").replace("{balance}", String.valueOf(balance)));
+            String formattedBalance = ColorUtil.formatMoney(balance, useIntCurrency);
+            player.sendMessage(config.getMessageString("bet-insufficient-funds").replace("{balance}", formattedBalance));
             return;
         }
 
         if (!plugin.getEconomyManager().withdraw(player, amount)) {
-            player.sendMessage(config.getMessageString("bet-insufficient-funds").replace("{balance}", String.valueOf(balance)));
+            String formattedBalance = ColorUtil.formatMoney(balance, useIntCurrency);
+            player.sendMessage(config.getMessageString("bet-insufficient-funds").replace("{balance}", formattedBalance));
             return;
         }
 
@@ -236,9 +247,10 @@ public class BetListener implements Listener {
         String greenText = config.getRawMessageString("bet-target-green");
         String numTemplate = config.getRawMessageString("bet-target-number");
         String targetFmt = bet.getFormattedTarget(redText, blackText, greenText, numTemplate);
+        String formattedAmount = ColorUtil.formatMoney(amount, useIntCurrency);
 
         player.sendMessage(config.getMessageString("bet-success")
-                .replace("{amount}", String.valueOf(amount))
+                .replace("{amount}", formattedAmount)
                 .replace("{target}", targetFmt));
 
         plugin.getRouletteManager().startOrResetTimer(table);

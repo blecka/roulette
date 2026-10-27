@@ -4,9 +4,24 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
 
+import java.text.DecimalFormat;
+
 public class ColorUtil {
 
     private static final LegacyComponentSerializer SECTION_SERIALIZER = LegacyComponentSerializer.legacySection();
+    private static final DecimalFormat INT_FORMAT = new DecimalFormat("#,##0");
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0.00");
+
+    /**
+     * Formats monetary amounts based on whether integer currency is enabled.
+     */
+    public static String formatMoney(double amount, boolean useIntegerCurrency) {
+        if (useIntegerCurrency) {
+            return INT_FORMAT.format(Math.round(amount));
+        } else {
+            return DECIMAL_FORMAT.format(amount);
+        }
+    }
 
     /**
      * Converts a string with color codes ('&' or '§') to an Adventure Component.

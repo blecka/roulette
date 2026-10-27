@@ -64,6 +64,7 @@ public class HologramManager {
 
     public Component buildHologramText(RouletteTable table) {
         ConfigManager config = plugin.getConfigManager();
+        boolean useIntCurrency = config.getConfig().getBoolean("use-integer-currency", true);
         List<String> lines = new ArrayList<>();
 
         // Title
@@ -88,9 +89,10 @@ public class HologramManager {
 
                     for (Bet bet : table.getActiveBets().values()) {
                         String targetFormatted = bet.getFormattedTarget(redText, blackText, greenText, numTemplate);
+                        String formattedAmount = ColorUtil.formatMoney(bet.getAmount(), useIntCurrency);
                         String entry = config.getRawMessageString("hologram.bet-entry")
                                 .replace("{player}", bet.getPlayerName())
-                                .replace("{amount}", String.valueOf(bet.getAmount()))
+                                .replace("{amount}", formattedAmount)
                                 .replace("{target}", targetFormatted);
                         lines.add(entry);
                     }

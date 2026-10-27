@@ -193,8 +193,20 @@ public class RouletteManager {
         table.getPlacedBlocks().clear();
     }
 
+    public void clearStaleWheelEntities(RouletteTable table) {
+        Location center = table.getLocation().getBlock().getLocation().add(0.5, 1.2, 0.5);
+        World world = center.getWorld();
+        if (world == null) return;
+
+        double searchRadius = Math.max(2.0, table.getSize() * 1.5);
+        world.getNearbyEntities(center, searchRadius, searchRadius, searchRadius, entity ->
+                entity instanceof BlockDisplay || (entity instanceof TextDisplay && !entity.equals(table.getHologramEntity())) || entity instanceof Arrow
+        ).forEach(entity -> entity.remove());
+    }
+
     public void spawnWheelBlockDisplays(RouletteTable table, double wheelRotationOffset) {
         removeWheelBlockDisplays(table);
+        clearStaleWheelEntities(table);
 
         Location center = table.getLocation().getBlock().getLocation().add(0.5, 1.2, 0.5);
         World world = center.getWorld();
@@ -454,6 +466,7 @@ public class RouletteManager {
 
     private void processPayouts(RouletteTable table, int winningNumber) {
         ConfigManager config = plugin.getConfigManager();
+        boolean useIntCurrency = config.getConfig().getBoolean("use-integer-currency", true);
         double broadcastMin = config.getConfig().getDouble("limits.broadcast-win-amount", 5000.0);
 
         double numMultiplier = config.getConfig().getDouble("payouts.number", 24.0);
@@ -473,7 +486,8 @@ public class RouletteManager {
                 case NUMBER -> {
                     if (bet.getTargetNumber() == winningNumber) {
                         won = true;
-                        multiplier = numMultiplier;
+                        // Special 32x payout multiplier if the winning number is 0
+                        multiplier = (winningNumber == 0) ? greenMultiplier : numMultiplier;
                     }
                 }
                 case RED -> {
@@ -502,7 +516,8 @@ public class RouletteManager {
                 plugin.getEconomyManager().deposit(Bukkit.getOfflinePlayer(bet.getPlayerUuid()), payout);
 
                 if (player != null && player.isOnline()) {
-                    String msg = config.getMessageString("win-message").replace("{amount}", String.valueOf(payout));
+                    String formattedPayout = ColorUtil.formatMoney(payout, useIntCurrency);
+                    String msg = config.getMessageString("win-message").replace("{amount}", formattedPayout);
                     player.sendMessage(msg);
                 }
 
@@ -512,10 +527,11 @@ public class RouletteManager {
                     String greenText = config.getRawMessageString("bet-target-green");
                     String numTemplate = config.getRawMessageString("bet-target-number");
                     String targetFmt = bet.getFormattedTarget(redText, blackText, greenText, numTemplate);
+                    String formattedPayout = ColorUtil.formatMoney(payout, useIntCurrency);
 
                     String broadcastMsg = config.getMessageString("broadcast-big-win")
                             .replace("{player}", bet.getPlayerName())
-                            .replace("{amount}", String.valueOf(payout))
+                            .replace("{amount}", formattedPayout)
                             .replace("{target}", targetFmt);
                     Bukkit.broadcast(ColorUtil.component(broadcastMsg));
                 }
@@ -529,11 +545,14 @@ public class RouletteManager {
 
     public void refundBets(RouletteTable table, String messageKey) {
         ConfigManager config = plugin.getConfigManager();
+        boolean useIntCurrency = config.getConfig().getBoolean("use-integer-currency", true);
+
         for (Bet bet : table.getActiveBets().values()) {
             plugin.getEconomyManager().deposit(Bukkit.getOfflinePlayer(bet.getPlayerUuid()), bet.getAmount());
             Player player = Bukkit.getPlayer(bet.getPlayerUuid());
             if (player != null && player.isOnline()) {
-                String msg = config.getMessageString(messageKey).replace("{amount}", String.valueOf(bet.getAmount()));
+                String formattedAmount = ColorUtil.formatMoney(bet.getAmount(), useIntCurrency);
+                String msg = config.getMessageString(messageKey).replace("{amount}", formattedAmount);
                 player.sendMessage(msg);
             }
         }
@@ -545,6 +564,7 @@ public class RouletteManager {
             table.getActiveTask().cancel();
         }
         removeWheelBlockDisplays(table);
+        clearStaleWheelEntities(table);
         plugin.getHologramManager().removeHologram(table);
     }
 

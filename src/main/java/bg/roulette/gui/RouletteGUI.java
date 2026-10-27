@@ -20,14 +20,15 @@ public class RouletteGUI {
     private final Roulette plugin;
 
     // 54 Slot Inventory Grid:
-    // Slots 9 to 44: Numbers 1 through 36 placed in upper 4 rows (9..44)
-    // Slot 49 on bottom row reserved exclusively for Green (0)
+    // Slots 0 to 35: Numbers 1 through 36 placed in Row 0 through Row 3 (slots 0..35)
+    // Row 4 (Slots 36..44): Filler glass panes separating numbers from action buttons
+    // Row 5 (Slots 48, 49, 50): Red Concrete (48), Green 0 Lime Concrete (49), Black Concrete (50)
     private static final int[] NUMBER_SLOTS = new int[37];
 
     static {
         NUMBER_SLOTS[0] = 49; // Green 0 on bottom row center
         for (int i = 1; i <= 36; i++) {
-            NUMBER_SLOTS[i] = 8 + i; // Numbers 1..36 occupy slots 9..44
+            NUMBER_SLOTS[i] = i - 1; // Numbers 1..36 occupy slots 0..35 starting on top row
         }
     }
 
@@ -61,7 +62,7 @@ public class RouletteGUI {
             inv.setItem(i, fillerItem);
         }
 
-        // Setup Numbers 1 - 36 in top rows 9..44
+        // Setup Numbers 1 - 36 starting on Row 0 (slots 0..35)
         for (int i = 1; i <= 36; i++) {
             int slot = NUMBER_SLOTS[i];
             Material mat;
@@ -89,7 +90,7 @@ public class RouletteGUI {
             inv.setItem(slot, numItem);
         }
 
-        // Setup Bottom Row Action Buttons (Red, Green 0, Black)
+        // Setup Bottom Row Action Buttons (Red 48, Green 0 49, Black 50)
         setupSpecialButton(inv, guiCfg, "red-button", 48, Material.RED_CONCRETE, "&c&lЧЕРВЕНО");
         setupSpecialButton(inv, guiCfg, "green-button", 49, Material.LIME_CONCRETE, "&a&lЗЕЛЕНО (0)");
         setupSpecialButton(inv, guiCfg, "black-button", 50, Material.BLACK_CONCRETE, "&8&lЧЕРНО");
