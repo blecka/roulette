@@ -3,12 +3,12 @@ only-players: "&cТази команда може да се използва с�
 unknown-command: "&cНепозната команда. Използвайте /roulette help"
 plugin-reloaded: "&aКонфигурационните файлове и масите бяха презаредени успешно!"
 
-table-created: "&aМаса &e{table} &aбеше създадена успешно с радиус на анимация &e{size}&a!"
+table-created: "&aМаса &e{table} &aбеше създадена успешно с радиус &e{size}&a!"
 table-deleted: "&cМаса &e{table} &cбеше изтрита успешно!"
 table-not-found: "&cНе е намерена маса с име &e{table}&c!"
 table-already-exists: "&cМаса с име &e{table} &cвече съществува!"
-table-size-changed: "&aРадиусът на анимацията за маса &e{table} &aбеше променен на &e{size}&a!"
-table-size-invalid: "&cНевалиден размер! Радиусът трябва да бъде между 1 и 5."
+table-size-changed: "&aРадиусът за маса &e{table} &aбеше променен на &e{size}&a!"
+table-size-invalid: "&cНевалиден размер! Радиусът трябва да бъде между 1 и 10."
 not-near-table: "&cТрябва да сте до маса за рулетка (в рамките на 10 блока), за да заложите!"
 
 bet-already-placed: "&cВече имате активен залог за този рунд!"

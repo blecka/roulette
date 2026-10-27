@@ -46,7 +46,7 @@ public class RouletteCommand implements CommandExecutor, TabCompleter {
                 }
 
                 if (args.length < 2) {
-                    player.sendMessage(ColorUtil.color("&cУпотреба: /roulette create <име> [размер]"));
+                    player.sendMessage(ColorUtil.color("&cУпотреба: /roulette create <име> [радиус 1-10]"));
                     return true;
                 }
 
@@ -66,7 +66,7 @@ public class RouletteCommand implements CommandExecutor, TabCompleter {
                     }
                 }
 
-                if (size < 1 || size > 5) {
+                if (size < 1 || size > 10) {
                     player.sendMessage(config.getMessageString("table-size-invalid"));
                     return true;
                 }
@@ -104,7 +104,7 @@ public class RouletteCommand implements CommandExecutor, TabCompleter {
                 }
 
                 if (args.length < 3) {
-                    sender.sendMessage(ColorUtil.color("&cУпотреба: /roulette size <име> <1-5>"));
+                    sender.sendMessage(ColorUtil.color("&cУпотреба: /roulette size <име> <1-10>"));
                     return true;
                 }
 
@@ -123,7 +123,7 @@ public class RouletteCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
 
-                if (newSize < 1 || newSize > 5) {
+                if (newSize < 1 || newSize > 10) {
                     sender.sendMessage(config.getMessageString("table-size-invalid"));
                     return true;
                 }
@@ -215,9 +215,9 @@ public class RouletteCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(ColorUtil.color("&e/roulette bet <сума> <target> &7- Направете залог"));
         }
         if (sender.hasPermission("roulette.admin")) {
-            sender.sendMessage(ColorUtil.color("&e/roulette create <име> [размер] &7- Създаване на маса"));
+            sender.sendMessage(ColorUtil.color("&e/roulette create <име> [радиус 1-10] &7- Създаване на маса"));
             sender.sendMessage(ColorUtil.color("&e/roulette delete <име> &7- Изтриване на маса"));
-            sender.sendMessage(ColorUtil.color("&e/roulette size <име> <1-5> &7- Промяна на размер (радиус на анимацията)"));
+            sender.sendMessage(ColorUtil.color("&e/roulette size <име> <1-10> &7- Промяна на радиус на масата"));
             sender.sendMessage(ColorUtil.color("&e/roulette reload &7- Презареждане на конфигурацията"));
         }
         sender.sendMessage(ColorUtil.color("&8&m---------------------------------------------"));
@@ -249,11 +249,9 @@ public class RouletteCommand implements CommandExecutor, TabCompleter {
         } else if (args.length == 3) {
             String sub = args[0].toLowerCase();
             if (sub.equals("create") || sub.equals("size")) {
-                completions.add("1");
-                completions.add("2");
-                completions.add("3");
-                completions.add("4");
-                completions.add("5");
+                for (int i = 1; i <= 10; i++) {
+                    completions.add(String.valueOf(i));
+                }
             } else if (sub.equals("bet")) {
                 completions.add("red");
                 completions.add("black");

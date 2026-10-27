@@ -1,6 +1,7 @@
 package bg.roulette.model;
 
 import org.bukkit.Location;
+import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -21,9 +22,11 @@ public class RouletteTable {
     private TableState state = TableState.WAITING;
     private final Map<UUID, Bet> activeBets = new HashMap<>();
     private final List<Location> placedBlocks = new ArrayList<>();
+    private final List<BlockDisplay> wheelDisplays = new ArrayList<>();
 
     private TextDisplay hologramEntity;
     private BukkitTask activeTask;
+    private boolean timerTaskRunning = false;
     private int remainingSeconds;
     private int currentSpinNumber;
     private int winningNumber;
@@ -78,6 +81,10 @@ public class RouletteTable {
         return placedBlocks;
     }
 
+    public List<BlockDisplay> getWheelDisplays() {
+        return wheelDisplays;
+    }
+
     public TextDisplay getHologramEntity() {
         return hologramEntity;
     }
@@ -95,6 +102,15 @@ public class RouletteTable {
             this.activeTask.cancel();
         }
         this.activeTask = activeTask;
+        this.timerTaskRunning = false;
+    }
+
+    public boolean isTimerTaskRunning() {
+        return timerTaskRunning;
+    }
+
+    public void setTimerTaskRunning(boolean timerTaskRunning) {
+        this.timerTaskRunning = timerTaskRunning;
     }
 
     public int getRemainingSeconds() {
